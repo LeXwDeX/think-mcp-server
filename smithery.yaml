@@ -1,7 +1,7 @@
 # Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
-name: "@PhillipRt/think-mcp-server"
+name: "think-mcp-tool"
 description: "A structured reasoning tool for AI assistants that provides a dedicated space for complex thinking and analysis"
-version: "1.0.1"
+version: "1.0.0"
 
 startCommand:
   type: stdio
@@ -13,8 +13,8 @@ startCommand:
     required: []
   commandFunction: |-
     (config) => ({
-      command: 'node',
-      args: ['dist/server.js'],
+      command: 'npx',
+      args: ['think-mcp-tool'],
       env: {
         NODE_ENV: 'production'
       }

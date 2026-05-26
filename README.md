@@ -1,12 +1,13 @@
 # Think Tool MCP Server
 
-[![smithery badge](https://smithery.ai/badge/@PhillipRt/think-mcp-server)](https://smithery.ai/server/@PhillipRt/think-mcp-server)
+[![npm version](https://img.shields.io/npm/v/think-mcp-tool)](https://www.npmjs.com/package/think-mcp-tool)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Official implementation of Anthropic's "think" tool as an MCP server** - Dramatically improve Claude's reasoning capabilities with structured thinking.
+**Implementation of Anthropic's "think" tool as an MCP server** — Dramatically improve AI reasoning capabilities with structured thinking.
 
 ## What is the Think Tool?
 
-This MCP server implements the exact "think" tool that Anthropic introduced in their [engineering blog post](https://www.anthropic.com/engineering/claude-think-tool). The Think Tool provides Claude with a dedicated space for structured reasoning during complex problem-solving tasks, enabling more thoughtful, accurate, and reliable responses.
+This MCP server implements the "think" tool that Anthropic introduced in their [engineering blog post](https://www.anthropic.com/engineering/claude-think-tool). The Think Tool provides AI assistants with a dedicated space for structured reasoning during complex problem-solving tasks, enabling more thoughtful, accurate, and reliable responses.
 
 ## Proven Performance Benefits
 
@@ -25,25 +26,66 @@ The "think" tool excels where other approaches fall short:
 
 ## Quick Install
 
-### For Claude Desktop
+### Via npm (Recommended)
 
 ```bash
-npx -y @smithery/cli@latest install @PhillipRt/think-mcp-server --client claude --config "{}"
+npx think-mcp-tool
+```
+
+### For Claude Desktop
+
+Add to your Claude Desktop configuration:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "think-tool": {
+      "command": "npx",
+      "args": ["think-mcp-tool"]
+    }
+  }
+}
 ```
 
 ### For Cursor
 
-```bash
-npx -y @smithery/cli@latest install @PhillipRt/think-mcp-server --client cursor --config "{}"
+Add to your Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "think-tool": {
+      "command": "npx",
+      "args": ["think-mcp-tool"]
+    }
+  }
+}
+```
+
+### For OpenCode
+
+Add to your `opencode.json`:
+
+```json
+{
+  "mcp": {
+    "think-tool": {
+      "command": "npx",
+      "args": ["think-mcp-tool"]
+    }
+  }
+}
 ```
 
 ## How It Works
 
-The "think" tool implements the exact mechanism described in Anthropic's engineering blog. Unlike extended thinking (which happens before Claude starts responding), the "think" tool allows Claude to pause and reflect during its response generation.
+The "think" tool implements the mechanism described in Anthropic's engineering blog. Unlike extended thinking (which happens before the AI starts responding), the "think" tool allows the AI to pause and reflect during its response generation.
 
-**Key mechanism:** The tool doesn't perform any external actions or retrieve new information - it simply provides Claude with a dedicated scratchpad to work through reasoning step-by-step, which dramatically improves performance on complex tasks.
+**Key mechanism:** The tool doesn't perform any external actions or retrieve new information — it simply provides a dedicated scratchpad to work through reasoning step-by-step, which dramatically improves performance on complex tasks.
 
-When Claude uses the "think" tool:
+When the AI uses the "think" tool:
 1. It **pauses to organize thoughts** before continuing a complex reasoning chain
 2. It **creates a structured approach** to multi-step problems
 3. It **verifies policy compliance** more thoroughly and consistently
@@ -54,20 +96,15 @@ When Claude uses the "think" tool:
 
 The "think" tool is especially valuable when:
 
-1. **Working with other MCP tools** - Great for analyzing outputs from databases, filesystems, or APIs
-2. **Following complex policies** - Perfect for customer service, legal, or compliance scenarios
-3. **Making sequential decisions** - Ideal for workflows where later steps depend on earlier ones
-4. **Processing web search results** - Helps Claude synthesize information from multiple sources
-5. **Solving coding challenges** - Improves success rates on software engineering tasks
+1. **Working with other MCP tools** — Great for analyzing outputs from databases, filesystems, or APIs
+2. **Following complex policies** — Perfect for customer service, legal, or compliance scenarios
+3. **Making sequential decisions** — Ideal for workflows where later steps depend on earlier ones
+4. **Processing web search results** — Helps synthesize information from multiple sources
+5. **Solving coding challenges** — Improves success rates on software engineering tasks
 
 ## System Prompt for Optimal Results
 
-Anthropic's research shows that **combining the "think" tool with optimized prompting delivers the strongest performance improvements**. For best results, add the following optimized system prompt to your Claude interaction:
-
-### For Claude Desktop (Custom Instructions)
-
-1. Go to Settings > Custom Instructions
-2. Add the following system prompt:
+Anthropic's research shows that **combining the "think" tool with optimized prompting delivers the strongest performance improvements**. For best results, add the following system prompt:
 
 ```
 You have access to a "think" tool that provides a dedicated space for structured reasoning. Using this tool significantly improves your performance on complex tasks.
@@ -90,46 +127,15 @@ When using the think tool:
 3. Check for gaps in information and plan how to fill them
 4. Evaluate multiple approaches before choosing one
 5. Verify your reasoning for logical errors or biases
-
-Remember that using the think tool has been shown to improve your performance by up to 54% on complex tasks, especially when working with multiple tools or following detailed policies.
-```
-
-### For Cursor (Global Rules)
-
-To add the Think Tool as a Cursor Rule:
-
-1. Open Cursor Settings
-2. Navigate to General > Rules for AI
-3. Add a new rule with the following content:
-
-```
-After any context change (viewing new files, running commands, or receiving tool outputs), use the "mcp_think" tool to organize your reasoning before responding.
-
-Specifically, always use the think tool when:
-- After examining file contents or project structure
-- After running terminal commands or analyzing their outputs
-- After receiving search results or API responses
-- Before making code suggestions or explaining complex concepts
-- When transitioning between different parts of a task
-
-When using the think tool:
-- List the specific rules or constraints that apply to the current task
-- Check if all required information is collected
-- Verify that your planned approach is correct
-- Break down complex problems into clearly defined steps
-- Analyze outputs from other tools thoroughly
-- Plan multi-step approaches before executing them
-
-The think tool has been proven to improve performance by up to 54% on complex tasks, especially when working with multiple tools or following detailed policies.
 ```
 
 ## Manual Installation
 
-If you prefer to run the server locally:
+If you prefer to run the server locally from source:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/PhillipRt/think-mcp-server.git
+   git clone https://github.com/LeXwDeX/think-mcp-server.git
    cd think-mcp-server
    ```
 
@@ -144,22 +150,13 @@ If you prefer to run the server locally:
    npm start
    ```
 
-4. **Configure Claude Desktop manually**:
-   - Find or create the configuration file:
-     - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-     - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-   - Add your server configuration:
+## Development
 
-   ```json
-   {
-     "mcpServers": {
-       "think-tool": {
-         "command": "node",
-         "args": ["path/to/think-mcp-server/dist/server.js"]
-       }
-     }
-   }
-   ```
+```bash
+npm run dev    # Hot-reload development mode
+npm run build  # Compile TypeScript
+npm start      # Run compiled output
+```
 
 ## License
 
