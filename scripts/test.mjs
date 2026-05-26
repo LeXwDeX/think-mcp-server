@@ -7,6 +7,7 @@
  * 2. tools/list returns the "think" tool
  * 3. tools/call returns the thought correctly
  * 4. Empty thought is rejected by validation
+ * 5. Server stays alive after stdin EOF (regression: fastmcp v4 stdio)
  *
  * Exit code 0 = all pass, 1 = any failure
  */
@@ -103,7 +104,25 @@ function handleResponse(response) {
       pass: !!isError,
       detail: isError ? "Correctly rejected" : "Should have rejected",
     });
-    finish();
+
+    // Test 5: server survives stdin EOF
+    server.on("exit", (code) => {
+      testResults.push({
+        test: "stdin EOF survival",
+        pass: false,
+        detail: `Server exited with code ${code} after stdin closed`,
+      });
+      finish();
+    });
+    server.stdin.end();
+    setTimeout(() => {
+      testResults.push({
+        test: "stdin EOF survival",
+        pass: true,
+        detail: "Server stayed alive 2s after stdin EOF",
+      });
+      finish();
+    }, 2000);
   }
 }
 

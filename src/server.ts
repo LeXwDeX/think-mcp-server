@@ -29,19 +29,36 @@ server.addTool({
   },
 });
 
+// Keepalive: prevent process exit on stdin EOF.
+// fastmcp v4's StdioServerTransport does not handle stdin 'end',
+// so when the client closes stdin the event loop can go idle and the process exits.
+// A keepalive timer ensures the event loop always has an active handle.
+const keepalive = setInterval(() => {}, 1 << 30);
+
 // Graceful shutdown
 const shutdown = async (signal: string) => {
   console.error(`Received ${signal}, shutting down...`);
-  await server.stop();
+  clearInterval(keepalive);
+  try {
+    await server.stop();
+  } catch {
+    // ignore stop errors
+  }
   process.exit(0);
 };
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
+  clearInterval(keepalive);
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled rejection:", reason);
+});
 
 // Start the server with stdio transport
 await server.start({
   transportType: "stdio",
 });
-
-console.error("Think Tool Server is running...");
