@@ -1,26 +1,49 @@
 {
-  "name": "think-mcp-server",
+  "name": "@lexwdex-org/think-mcp-server",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/server.js",
+  "bin": {
+    "think-mcp-server": "dist/server.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "node --loader ts-node/esm src/server.ts",
-    "inspect": "npx fastmcp inspect src/server.ts"
+    "dev": "npx tsx src/server.ts",
+    "inspect": "npx fastmcp inspect src/server.ts",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["mcp", "ai", "claude", "think-tool"],
-  "author": "",
-  "license": "ISC",
-  "description": "An MCP server that provides a 'think' tool for structured reasoning",
+  "keywords": ["mcp", "ai", "claude", "think-tool", "model-context-protocol", "reasoning"],
+  "author": "LeXwDeX",
+  "license": "MIT",
+  "description": "An MCP server that provides a 'think' tool for structured reasoning, based on Anthropic's engineering research",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeXwDeX/think-mcp-server.git"
+  },
+  "homepage": "https://github.com/LeXwDeX/think-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/LeXwDeX/think-mcp-server/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@types/node": "^22.13.17",
-    "fastmcp": "^1.21.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
+    "fastmcp": "^2.2.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@types/node": "^22.13.17",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.2"
   }
 }
