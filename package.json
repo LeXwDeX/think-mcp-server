@@ -1,6 +1,6 @@
 {
   "name": "think-mcp-tool",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "main": "dist/server.js",
   "bin": {
@@ -22,7 +22,14 @@
     "inspect": "npx fastmcp inspect src/server.ts",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["mcp", "ai", "claude", "think-tool", "model-context-protocol", "reasoning"],
+  "keywords": [
+    "mcp",
+    "ai",
+    "claude",
+    "think-tool",
+    "model-context-protocol",
+    "reasoning"
+  ],
   "author": "LeXwDeX",
   "license": "MIT",
   "description": "An MCP server that provides a 'think' tool for structured reasoning, based on Anthropic's engineering research",
