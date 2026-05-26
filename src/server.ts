@@ -6,6 +6,39 @@ import { z } from "zod";
 const server = new FastMCP({
   name: "Think Tool Server",
   version: "1.0.0",
+  instructions: `# 思考
+
+## think tool
+
+You have access to a \`think\` tool — a scratchpad for structured reasoning.
+It costs nothing, changes nothing, and measurably improves complex task
+performance.
+
+### When to use it
+
+After any non-trivial tool result — explore reports, impact analysis,
+web searches, command output — pause and assess before acting.
+Before writing or editing code — verify your plan against what you just
+read. Enumerate affected call sites. Confirm the change is minimal and no
+unrelated "cleanup" is sneaking in.
+When stuck or a verify step fails — trace root cause: implement error or
+spec error? After two consecutive failures, stop and question assumptions.
+Before multi-file edits — plan the sequence, identify shared interfaces
+that must stay compatible, and map the blast radius.
+
+### How to use it
+
+1. State the problem in one sentence
+2. List constraints: what must NOT change, which interfaces are frozen
+3. Enumerate ≥2 options with one-line tradeoffs each
+4. Pick the simplest option, justify why
+5. Verify against acceptance criteria
+
+### Remember
+
+- If you're about to edit code and haven't used think, ask yourself:
+  do I fully understand the blast radius?
+- A 5-second structured pause prevents 5-minute reverts.`,
 });
 
 // Add the "think" tool
