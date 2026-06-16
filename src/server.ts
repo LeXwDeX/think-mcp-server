@@ -15,7 +15,7 @@ let nextId = 1;
 // ── MCP Server ────────────────────────────────────────────────────────
 const server = new FastMCP({
   name: "Think Tool Server",
-  version: "1.2.0",
+  version: "1.2.1",
   instructions: `# Structured Thinking Tools
 
 Two structured-reasoning tools this session.

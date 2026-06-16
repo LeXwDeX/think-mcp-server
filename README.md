@@ -3,7 +3,14 @@
 [![npm version](https://img.shields.io/npm/v/think-mcp-tool)](https://www.npmjs.com/package/think-mcp-tool)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Implementation of Anthropic's "think" tool as an MCP server** — Dramatically improve AI reasoning capabilities with structured thinking.
+**Implementation of Anthropic's "think" tool as an MCP server** — Structured reasoning that dramatically improves AI performance, with a hard rule that forces deep analysis on any problem with ≥ 3 parallel items.
+
+## What's in this server?
+
+Two tools, served over stdio:
+
+- **`think`** — a structured-reasoning scratchpad. The model pauses, organizes its thoughts in Markdown headings + lists, then proceeds. No side effects; no new information fetched.
+- **`recall`** — revisit prior thoughts from the same session, filtered by keyword, so the model builds on earlier reasoning instead of repeating itself.
 
 ## What is the Think Tool?
 
@@ -81,52 +88,71 @@ Add to your `opencode.json`:
 
 ## How It Works
 
-The "think" tool implements the mechanism described in Anthropic's engineering blog. Unlike extended thinking (which happens before the AI starts responding), the "think" tool allows the AI to pause and reflect during its response generation.
+The "think" tool implements the mechanism described in Anthropic's engineering blog. Unlike extended thinking (which happens before the AI starts responding), the "think" tool allows the AI to pause and reflect during its response generation. The tool performs no external actions and retrieves no new information — it provides a dedicated scratchpad to reason step-by-step, which materially improves performance on complex tasks.
 
-**Key mechanism:** The tool doesn't perform any external actions or retrieve new information — it simply provides a dedicated scratchpad to work through reasoning step-by-step, which dramatically improves performance on complex tasks.
+### Hard rule: think before acting on ≥ 3 items
 
-When the AI uses the "think" tool:
-1. It **pauses to organize thoughts** before continuing a complex reasoning chain
-2. It **creates a structured approach** to multi-step problems
-3. It **verifies policy compliance** more thoroughly and consistently
-4. It **carefully analyzes tool outputs** before deciding next steps
-5. It **maintains better context awareness** across long interactions
+This server ships with a **mandatory** trigger. The model must call `think` before acting when any of these hold:
 
-### When to Use the Think Tool
+- **≥ 3 parallel items** — options, candidates, files, fields, steps, search hits, errors (any countable set)
+- **≥ 3 affected code points** — files, functions, call sites, config keys
+- **A task that decomposes into ≥ 3 ordered steps**
 
-The "think" tool is especially valuable when:
+Counting rule: if unsure whether items are "parallel," trigger. Skipping this rule causes missed tradeoffs, missed call-site edits, and wrong step ordering. This rule is injected via the server's MCP `instructions` field and the `think` tool description, so any compliant client will see it automatically.
 
-1. **Working with other MCP tools** — Great for analyzing outputs from databases, filesystems, or APIs
-2. **Following complex policies** — Perfect for customer service, legal, or compliance scenarios
-3. **Making sequential decisions** — Ideal for workflows where later steps depend on earlier ones
-4. **Processing web search results** — Helps synthesize information from multiple sources
-5. **Solving coding challenges** — Improves success rates on software engineering tasks
+### When else it helps (soft triggers)
+
+Beyond the hard rule, `think` is valuable after non-trivial tool results, before writing or editing code, when verify fails (trace root cause), and before multi-file edits (plan order, gauge blast radius).
 
 ## System Prompt for Optimal Results
 
-Anthropic's research shows that **combining the "think" tool with optimized prompting delivers the strongest performance improvements**. For best results, add the following system prompt:
+Anthropic's research shows that **combining the "think" tool with optimized prompting delivers the strongest performance improvements**. This server already injects the prompt below via the MCP `instructions` field, so most clients (Claude Desktop, Cursor, OpenCode) pick it up automatically. If your client does not surface MCP instructions, paste this into your system prompt:
 
 ```
-You have access to a "think" tool that provides a dedicated space for structured reasoning. Using this tool significantly improves your performance on complex tasks.
+You have two structured-reasoning tools: think and recall.
 
-## When to use the think tool
+## MUST think first (hard rule)
 
-Before taking any action or responding to the user after receiving tool results, use the think tool as a scratchpad to:
-- List the specific rules that apply to the current request
-- Check if all required information is collected
-- Verify that the planned action complies with all policies
-- Iterate over tool results for correctness
-- Analyze complex information from web searches or other tools
-- Plan multi-step approaches before executing them
+Call think before acting when ANY of these hold — no exceptions:
+- ≥ 3 parallel items (options, candidates, files, fields, steps, search hits, errors)
+- ≥ 3 affected code points (files, functions, call sites, config keys)
+- Task decomposes into ≥ 3 ordered steps
 
-## How to use the think tool effectively
+Rule: count the items; ≥ 3 → trigger. When unsure if "parallel," trigger.
 
-When using the think tool:
-1. Break down complex problems into clearly defined steps
-2. Identify key facts, constraints, and requirements
-3. Check for gaps in information and plan how to fill them
-4. Evaluate multiple approaches before choosing one
-5. Verify your reasoning for logical errors or biases
+## When else to think (soft)
+
+- After non-trivial tool results — assess before acting
+- Before writing/editing code — validate plan, list affected call sites
+- When stuck or verify fails — trace root cause
+- Before multi-file edits — plan order, gauge blast radius
+
+## How to structure
+
+Always Markdown headings + lists. No prose dumps. Template:
+
+## Problem
+One sentence.
+
+## Constraints
+- What's frozen
+- Boundaries not to cross
+
+## Options
+1. Option A — one-line tradeoff
+2. Option B — one-line tradeoff
+
+## Decision
+Which, and why.
+
+## Verification
+How to confirm correctness.
+
+Skip irrelevant sections on simple problems. Core discipline: boxes, not mush.
+
+## recall — revisit past thoughts
+
+Use recall to view prior thoughts this session, to check if a problem was already analyzed, build on existing reasoning, or review the decision chain.
 ```
 
 ## Manual Installation
