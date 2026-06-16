@@ -15,68 +15,79 @@ let nextId = 1;
 // ── MCP Server ────────────────────────────────────────────────────────
 const server = new FastMCP({
   name: "Think Tool Server",
-  version: "1.1.0",
-  instructions: `# 结构化思考工具
+  version: "1.2.0",
+  instructions: `# Structured Thinking Tools
 
-你在当前会话中拥有两个结构化推理工具。
+Two structured-reasoning tools this session.
 
-## think — 结构化推理草稿本
+## think — structured reasoning scratchpad
 
-用 \`think\` 在复杂问题前暂停、梳理思路。它不产生副作用，但能显著提升任务表现（τ-Bench 提升 54%）。
+Pause and organize thoughts on complex problems before acting. No side effects; materially improves task performance (τ-Bench +54%).
 
-### 何时使用
+### MUST think first (hard rule)
 
-- 收到非平凡的 tool 结果后 — 先评估再行动
-- 写代码或改代码前 — 验证方案，列出受影响的调用点
-- 卡住或验证失败时 — 追溯根因
-- 多文件编辑前 — 规划顺序，评估爆炸半径
+Call \`think\` before acting when ANY of these hold — no exceptions:
 
-### 如何结构化思考
+- **≥ 3 parallel items** — options, candidates, files, fields, steps, search hits, errors (any countable set)
+- **≥ 3 affected code points** — files, functions, call sites, config keys
+- **Task decomposes into ≥ 3 ordered steps**
 
-始终使用 Markdown 标题和列表，**不要写大段散文**。参考模板：
+Rule: count the items; ≥ 3 → trigger. When unsure if "parallel," trigger.
+Skipping this causes missed tradeoffs, missed call-site edits, wrong step ordering.
+
+### When else to use (soft)
+
+- After non-trivial tool results — assess before acting
+- Before writing/editing code — validate plan, list affected call sites
+- When stuck or verify fails — trace root cause
+- Before multi-file edits — plan order, gauge blast radius
+
+### How to structure
+
+Always Markdown headings + lists. No prose dumps. Template:
 
 \`\`\`
-## 问题
-一句话描述问题。
+## Problem
+One sentence.
 
-## 约束
-- 不能改什么
-- 哪些接口/边界是冻结的
+## Constraints
+- What's frozen
+- Boundaries not to cross
 
-## 方案
-1. 方案 A — 一句话权衡
-2. 方案 B — 一句话权衡
+## Options
+1. Option A — one-line tradeoff
+2. Option B — one-line tradeoff
 
-## 决策
-选哪个，为什么。
+## Decision
+Which, and why.
 
-## 验证
-如何确认正确性。
+## Verification
+How to confirm correctness.
 \`\`\`
 
-**简单问题可以跳过不相关的章节**，也可以按需增加新章节（如"风险"、"依赖"、"待确认"）。
-核心纪律是：**条条框框，不要糊一坨**。
+Skip irrelevant sections on simple problems; add new ones as needed (Risks, Dependencies, Open questions).
+Core discipline: **boxes, not mush.**
 
-## recall — 回顾历史思考
+## recall — revisit past thoughts
 
-用 \`recall\` 查看当前会话中之前的思考记录。适用于：
-- 检查是否已经分析过某个问题
-- 在已有推理基础上继续，避免重复
-- 复杂操作前回顾决策链路`,
+Use \`recall\` to view prior thoughts this session:
+- Check if you already analyzed a problem
+- Build on existing reasoning instead of repeating
+- Review the decision chain before complex operations`,
 });
 
 // ── think tool ────────────────────────────────────────────────────────
 server.addTool({
   name: "think",
   description:
-    "用这个工具思考问题。它不会获取新信息或修改数据，只会将思考追加到会话日志中。在需要复杂推理或缓存思路时使用。始终用 Markdown 标题（## 问题、## 约束、## 方案、## 决策、## 验证）和列表来组织思考，简单问题可跳过部分章节，但不要写无结构的散文段落。",
+    "Think before acting. This tool fetches no new information and modifies nothing — it appends your reasoning to the session log. Use it whenever you face ≥ 3 parallel items, ≥ 3 affected code points, or ≥ 3 ordered steps, and in any non-trivial reasoning. Organize with Markdown headings (## Problem, Constraints, Options, Decision, Verification) and lists; skip irrelevant sections on simple problems. Never write unstructured prose.",
   parameters: z.object({
     thought: z
       .string()
-      .min(1, "思考内容不能为空")
-      .max(10000, "思考内容不能超过 10000 字符")
+      .min(1, "Thought must not be empty")
+      .max(10000, "Thought must not exceed 10000 characters")
       .describe(
-        "一段结构化思考，使用 Markdown 标题和列表。参考模板：## 问题、## 约束、## 方案、## 决策、## 验证。简单问题可跳过部分章节。"
+        "Structured reasoning in Markdown headings + lists. Template: ## Problem, Constraints, Options, Decision, Verification. Skip irrelevant sections on simple problems."
       ),
   }),
   execute: async (args, { log }) => {
@@ -97,19 +108,19 @@ server.addTool({
 server.addTool({
   name: "recall",
   description:
-    "回顾当前会话中的历史思考记录。返回带时间戳的思考条目列表。用于回顾推理链路、避免重复分析、或在已有结论基础上继续。",
+    "Review prior thoughts this session. Returns timestamped entries. Use to check if a problem was already analyzed, build on existing reasoning instead of repeating, or revisit the decision chain before complex operations.",
   parameters: z.object({
     query: z
       .string()
       .optional()
-      .describe("可选关键词，按内容过滤思考记录。不填则返回最近的思考。"),
+      .describe("Optional keyword to filter by content. Omit for most recent."),
     limit: z
       .number()
       .int()
       .min(1)
       .max(50)
       .optional()
-      .describe("最多返回多少条思考记录（默认 10）。"),
+      .describe("Max entries to return (default 10)."),
   }),
   execute: async (args) => {
     const limit = args.limit ?? 10;
@@ -127,21 +138,21 @@ server.addTool({
 
     if (results.length === 0) {
       return query
-        ? `当前会话中没有匹配 "${args.query}" 的思考记录。`
-        : "当前会话中还没有思考记录。";
+        ? `No thoughts matching "${args.query}" this session.`
+        : "No thoughts recorded yet this session.";
     }
 
     // Format as structured Markdown
     const formatted = results
       .map((e) => {
         const time = new Date(e.timestamp).toLocaleTimeString();
-        return `### 思考 #${e.id}（${time}）\n\n${e.thought}`;
+        return `### Thought #${e.id} (${time})\n\n${e.thought}`;
       })
       .join("\n\n---\n\n");
 
     const header = query
-      ? `## 回顾：${results.length} 条匹配 "${args.query}" 的思考\n\n`
-      : `## 回顾：最近 ${results.length} 条思考\n\n`;
+      ? `## Recall: ${results.length} thoughts matching "${args.query}"\n\n`
+      : `## Recall: last ${results.length} thoughts\n\n`;
 
     return header + formatted;
   },
