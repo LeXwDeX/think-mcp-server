@@ -1,46 +1,31 @@
 {
-  "_comment": "Project-level mempalace hooks. CodeGraph index lives in <cwd>/.codegraph/ (codegraph init -i). OPENCODE settings chain merges all layers.",
+  "_comment": "Project-level hooks: hindsight (semantic memory) + think (deep reasoning) + codebase-memory-mcp (code structure). DCP plugin runs automatically.",
   "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/root/.local/bin/mempalace hook run --hook session-start --harness claude-code 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Glob|Grep|Read",
         "hooks": [
           {
             "type": "command",
-            "command": "command -v mempalace >/dev/null 2>&1 && [ -d \"$HOME/.mempalace\" ] && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"[mempalace] Semantic memory available. Use mempalace_search MCP tool or mempalace search CLI for historical experience retrieval.\"}}' || true"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"[hindsight] Semantic memory available: hindsight_recall (search history), hindsight_retain (save findings). bank_id auto-managed.\"}}'"
           }
         ]
-      }
-    ],
-    "Stop": [
+      },
       {
         "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "/root/.local/bin/mempalace hook run --hook stop --harness claude-code 2>/dev/null || true"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"[think] Deep reasoning available: use think tool for complex analysis, multi-step planning, or when stuck on hard problems.\"}}'"
           }
         ]
-      }
-    ],
-    "PreCompact": [
+      },
       {
-        "matcher": "*",
+        "matcher": "Glob|Grep|Read",
         "hooks": [
           {
             "type": "command",
-            "command": "/root/.local/bin/mempalace hook run --hook precompact --harness claude-code 2>/dev/null || true"
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"[codebase-memory-mcp] Code structure available: search_graph (find symbols by label/name/file), trace_path (trace call chains inbound/outbound), get_architecture (overview: languages/routes/hotspots).\"}}'"
           }
         ]
       }
